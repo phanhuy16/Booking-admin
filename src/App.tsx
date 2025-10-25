@@ -1,6 +1,7 @@
 import EventIcon from "@mui/icons-material/Event";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import PersonIcon from "@mui/icons-material/Person";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import React from "react";
 import { Admin, Login, Resource } from "react-admin";
 import authProvider from "./authProvider";
@@ -18,6 +19,10 @@ import { SpecialtyList } from "./components/specialties/SpecialtyList";
 import { SpecialtyEdit } from "./components/specialties/SpecialtyEdit";
 import { SpecialtyShow } from "./components/specialties/SpecialtyShow";
 import { SpecialtyCreate } from "./components/specialties/SpecialtyCreate";
+import { ScheduleList } from "./components/schedules/ScheduleList";
+import { ScheduleShow } from "./components/schedules/ScheduleShow";
+import { ScheduleCreate } from "./components/schedules/ScheduleCreate";
+import { ScheduleEdit } from "./components/schedules/ScheduleEdit";
 
 const App: React.FC = () => (
   <Admin
@@ -56,6 +61,16 @@ const App: React.FC = () => (
       show={SpecialtyShow}
       icon={EventIcon}
       options={{ label: "Chuyên khoa" }}
+    />
+
+    <Resource
+      name="schedules"
+      list={ScheduleList}
+      show={ScheduleShow}
+      create={ScheduleCreate}
+      edit={ScheduleEdit}
+      icon={CalendarTodayIcon}
+      options={{ label: "Lịch làm việc" }}
     />
   </Admin>
 );

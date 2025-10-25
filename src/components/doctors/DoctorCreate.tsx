@@ -6,22 +6,54 @@ import {
   NumberInput,
   ReferenceInput,
   SelectInput,
+  ImageInput,
+  ImageField,
   required,
   minValue,
   maxValue,
-  email,
+  email as emailValidator,
+  minLength,
 } from "react-admin";
+import { Box, Typography } from "@mui/material";
 
-// Tạo bác sĩ mới (User + Profile) - Dành cho Admin
+// Validation
+const validateAvatar = (value: any) => {
+  if (!value) return undefined; // Optional
+
+  if (value.rawFile) {
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedTypes = [
+      "image/png",
+      "image/jpeg",
+      "image/jpg",
+      "image/gif",
+      "image/webp",
+    ];
+
+    if (value.rawFile.size > maxSize) {
+      return "File không được vượt quá 5MB";
+    }
+
+    if (!allowedTypes.includes(value.rawFile.type)) {
+      return "Chỉ chấp nhận file PNG, JPG, GIF, WEBP";
+    }
+  }
+
+  return undefined;
+};
+
 export const DoctorCreate: React.FC = () => {
   return (
-    <Create resource="doctors" redirect="list">
+    <Create redirect="show">
       <SimpleForm>
-        {/* Thông tin tài khoản */}
+        <Typography variant="h6" gutterBottom>
+          Thông tin tài khoản
+        </Typography>
+
         <TextInput
           source="fullName"
           label="Họ và tên"
-          validate={required()}
+          validate={[required(), minLength(2)]}
           fullWidth
         />
 
@@ -29,11 +61,16 @@ export const DoctorCreate: React.FC = () => {
           source="email"
           label="Email"
           type="email"
-          validate={[required(), email()]}
+          validate={[required(), emailValidator()]}
           fullWidth
         />
 
-        <TextInput source="phone" label="Số điện thoại" validate={required()} />
+        <TextInput
+          source="phone"
+          label="Số điện thoại"
+          validate={required()}
+          helperText="VD: 0901234567"
+        />
 
         <TextInput
           source="password"
@@ -42,7 +79,35 @@ export const DoctorCreate: React.FC = () => {
           helperText="Để trống sẽ dùng mật khẩu mặc định: Doctor@123"
         />
 
-        {/* Thông tin chuyên môn */}
+        <NumberInput
+          source="consultationFee"
+          label="Phí tư vấn"
+          defaultValue={0}
+          validate={[required(), minValue(0), maxValue(10000000)]}
+        />
+
+        <ImageInput
+          source="avatar"
+          label="Avatar"
+          accept={{ "image/*": [] }}
+          maxSize={5000000}
+          validate={validateAvatar}
+          placeholder={
+            <Box textAlign="center" p={2}>
+              <Typography>Kéo thả hoặc click để upload avatar</Typography>
+              <Typography variant="caption" color="textSecondary">
+                PNG, JPG, GIF, WEBP • Tối đa 5MB
+              </Typography>
+            </Box>
+          }
+        >
+          <ImageField source="src" title="title" />
+        </ImageInput>
+
+        <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
+          Thông tin chuyên môn
+        </Typography>
+
         <ReferenceInput
           source="specialtyId"
           reference="specialties"
