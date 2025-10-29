@@ -1,28 +1,36 @@
+import { Admin, Login, Resource } from "react-admin";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import EventIcon from "@mui/icons-material/Event";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
+import MedicationIcon from "@mui/icons-material/Medication";
 import PersonIcon from "@mui/icons-material/Person";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import PaymentIcon from "@mui/icons-material/Payment";
 import React from "react";
-import { Admin, Login, Resource } from "react-admin";
 import authProvider from "./authProvider";
+import CustomLoginForm from "./components/CustomLoginForm";
 import Dashboard from "./components/Dashboard";
 import dataProvider from "./dataProvider";
-import { DoctorCreate } from "./components/doctors/DoctorCreate";
-import { DoctorEdit } from "./components/doctors/DoctorEdit";
-import { DoctorList } from "./components/doctors/DoctorList";
-import { DoctorShow } from "./components/doctors/DoctorShow";
-import { PatientEdit } from "./components/patients/PatientEdit";
-import { PatientList } from "./components/patients/PatientList";
-import { PatientShow } from "./components/patients/PatientShow";
-import CustomLoginForm from "./components/CustomLoginForm";
-import { SpecialtyList } from "./components/specialties/SpecialtyList";
-import { SpecialtyEdit } from "./components/specialties/SpecialtyEdit";
-import { SpecialtyShow } from "./components/specialties/SpecialtyShow";
-import { SpecialtyCreate } from "./components/specialties/SpecialtyCreate";
-import { ScheduleList } from "./components/schedules/ScheduleList";
-import { ScheduleShow } from "./components/schedules/ScheduleShow";
-import { ScheduleCreate } from "./components/schedules/ScheduleCreate";
-import { ScheduleEdit } from "./components/schedules/ScheduleEdit";
+import {
+  DoctorCreate,
+  DoctorEdit,
+  DoctorList,
+  DoctorShow,
+} from "./components/doctors";
+import { PatientEdit, PatientList, PatientShow } from "./components/patients";
+import {
+  SpecialtyCreate,
+  SpecialtyEdit,
+  SpecialtyList,
+  SpecialtyShow,
+} from "./components/specialties";
+import {
+  ScheduleCreate,
+  ScheduleEdit,
+  ScheduleList,
+  ScheduleShow,
+} from "./components/schedules";
+import { BookingEdit, BookingList, BookingShow } from "./components/bookings";
+import { PaymentEdit, PaymentList, PaymentShow } from "./components/payments";
 
 const App: React.FC = () => (
   <Admin
@@ -59,7 +67,7 @@ const App: React.FC = () => (
       list={SpecialtyList}
       edit={SpecialtyEdit}
       show={SpecialtyShow}
-      icon={EventIcon}
+      icon={MedicationIcon}
       options={{ label: "Chuyên khoa" }}
     />
 
@@ -71,6 +79,24 @@ const App: React.FC = () => (
       edit={ScheduleEdit}
       icon={CalendarTodayIcon}
       options={{ label: "Lịch làm việc" }}
+    />
+
+    <Resource
+      name="bookings"
+      list={BookingList}
+      edit={BookingEdit}
+      show={BookingShow}
+      options={{ label: "Đặt lịch" }}
+      icon={EventIcon}
+    />
+
+    <Resource
+      name="payments"
+      list={PaymentList}
+      show={PaymentShow}
+      edit={PaymentEdit}
+      icon={PaymentIcon}
+      options={{ label: "Thanh toán" }}
     />
   </Admin>
 );

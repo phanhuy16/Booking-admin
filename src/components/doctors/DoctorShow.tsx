@@ -113,7 +113,11 @@ const DoctorInfoCard: React.FC = () => {
                   <InfoField
                     icon={<AttachMoney />}
                     label="Phí tư vấn"
-                    value={`${record.consultationFee?.toLocaleString()} VND`}
+                    value={
+                      record.consultationFee
+                        ? `${record.consultationFee.toLocaleString("vi-VN")} ₫`
+                        : "N/A"
+                    }
                   />
                 </Grid>
                 <Grid size={{ xs: 12, md: 6 }}>

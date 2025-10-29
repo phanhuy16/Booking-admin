@@ -109,7 +109,6 @@ export const DoctorEdit: React.FC = () => {
       const { avatar, avatarUrl, ...rest } = data;
       return rest;
     }
-    console.log(data);
     return data;
   };
 
@@ -197,10 +196,20 @@ export const DoctorEdit: React.FC = () => {
           <SelectInput optionText="name" validate={required()} />
         </ReferenceInput>
 
-        <NumberInput
+        <TextInput
           source="consultationFee"
-          label="Phí tư vấn"
+          label="Phí tư vấn (VNĐ)"
           validate={[required(), minValue(0), maxValue(10000000)]}
+          format={(value) =>
+            value ? parseInt(value).toLocaleString("vi-VN") : ""
+          }
+          parse={(value) => {
+            if (!value) return 0;
+            const numericValue = value.toString().replace(/\./g, "");
+            return parseInt(numericValue) || 0;
+          }}
+          helperText="Nhập số tiền, VD: 500.000"
+          fullWidth
         />
 
         <NumberInput

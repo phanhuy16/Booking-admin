@@ -402,7 +402,6 @@ const dataProvider: DataProvider = {
 
   update: async (resource, params) => {
     const endpoint = getEndpoint(resource, 'update');
-    const url = `${API_URL}/${endpoint}/${params.id}`;
 
     try {
       // Transform data based on resource
@@ -421,8 +420,20 @@ const dataProvider: DataProvider = {
         const { json } = await httpClient(statusUrl, {
           method: 'PUT',
           body: JSON.stringify({ status: params.data.status }),
+          headers: new Headers({ 'Content-Type': 'application/json' }),
         });
-        return { data: json };
+
+        // Đảm bảo response có id
+        if (json && typeof json === 'object') {
+          // Nếu API trả về object có id, dùng nó
+          if ('id' in json) {
+            return { data: json };
+          }
+          // Nếu không có id, thêm id vào
+          return { data: { ...json, id: params.id } };
+        }
+        // Nếu API chỉ trả về boolean hoặc message
+        return { data: { ...params.data, id: params.id } };
       }
 
       // Handle payment status update
@@ -431,55 +442,110 @@ const dataProvider: DataProvider = {
         const { json } = await httpClient(statusUrl, {
           method: 'PUT',
           body: JSON.stringify({ status: params.data.status }),
+          headers: new Headers({ 'Content-Type': 'application/json' }),
         });
-        return { data: json };
+
+        // API trả về NoContent (204), cần fetch lại data
+        if (!json || Object.keys(json).length === 0) {
+          // Fetch updated payment data
+          try {
+            const { json: updatedData } = await httpClient(
+              `${API_URL}/payments/booking/${params.previousData?.bookingId || params.id}`
+            );
+            if (updatedData && 'id' in updatedData) {
+              return { data: updatedData };
+            }
+          } catch (e) {
+            // Fallback nếu không fetch được
+            return { data: { ...params.data, id: params.id } };
+          }
+        }
+
+        // Đảm bảo response có id
+        if (json && typeof json === 'object') {
+          if ('id' in json) {
+            return { data: json };
+          }
+          return { data: { ...json, id: params.id } };
+        }
+        return { data: { ...params.data, id: params.id } };
       }
+
+      // Handle payment sync booking (custom action)
+      if (resource === 'payments' && params.data.syncBooking) {
+        const syncUrl = `${API_URL}/payments/admin/${params.id}/sync-booking`;
+        await httpClient(syncUrl, {
+          method: 'POST',
+          headers: new Headers({ 'Content-Type': 'application/json' }),
+        });
+
+        // Return original data with id
+        return { data: { ...params.previousData, id: params.id } };
+      }
+
+      // Default update logic with FormData/JSON
+      const url = `${API_URL}/${endpoint}/${params.id}`;
 
       // Handle FormData for file updates
       let body: any;
-      let headers: any = {};
+      let options: fetchUtils.Options = { method: 'PUT' };
 
       if (params.data instanceof FormData) {
         body = params.data;
+        // KHÔNG set Content-Type cho FormData - browser tự động set với boundary
       } else if (resource === 'specialties' && params.data.icon) {
         // Specialties update với icon
         const formData = new FormData();
         Object.keys(dataToSend).forEach(key => {
           if (key === 'icon' && dataToSend[key]?.rawFile) {
-            formData.append('icon', dataToSend[key].rawFile);
-          } else if (key !== 'icon') {
-            formData.append(key, dataToSend[key]);
+            formData.append('Icon', dataToSend[key].rawFile);
+          } else if (key !== 'icon' && key !== 'iconUrl') {
+            const value = dataToSend[key];
+            if (value !== null && value !== undefined) {
+              formData.append(key, value);
+            }
           }
         });
         body = formData;
+        // KHÔNG set Content-Type cho FormData
       } else if (resource === 'doctors' && params.data.avatar) {
         // Doctors update với avatar
         const formData = new FormData();
         Object.keys(dataToSend).forEach(key => {
           if (key === 'avatar' && dataToSend[key]?.rawFile) {
-            formData.append('avatar', dataToSend[key].rawFile);
-          } else if (key !== 'avatar') {
-            formData.append(key, dataToSend[key]);
+            formData.append('Avatar', dataToSend[key].rawFile);
+          } else if (key !== 'avatar' && key !== 'avatarUrl') {
+            const value = dataToSend[key];
+            if (value !== null && value !== undefined) {
+              formData.append(key, value);
+            }
           }
         });
         body = formData;
+        // KHÔNG set Content-Type cho FormData
       } else {
+        // JSON body - set Content-Type
         body = JSON.stringify(dataToSend);
-        headers['Content-Type'] = 'application/json';
+        options.headers = new Headers({ 'Content-Type': 'application/json' });
       }
 
-      const { json } = await httpClient(url, {
-        method: 'PUT',
-        body: body,
-        ...(Object.keys(headers).length > 0 && { headers })
-      });
+      options.body = body;
 
-      // Some endpoints return boolean, handle that
-      if (typeof json === 'boolean' || json.message) {
-        return { data: { ...params.data, id: params.id } };
+      const { json } = await httpClient(url, options);
+
+      // QUAN TRỌNG: Đảm bảo response luôn có id
+      if (json && typeof json === 'object') {
+        // Nếu response đã có id, trả về như bình thường
+        if ('id' in json) {
+          return { data: json };
+        }
+        // Nếu response không có id, thêm id vào
+        return { data: { ...json, id: params.id } };
       }
 
-      return { data: json };
+      // Nếu API trả về boolean, string, hoặc các kiểu primitive khác
+      // Trả về data gốc kèm id
+      return { data: { ...params.data, id: params.id } };
     } catch (error) {
       console.error(`Error updating ${resource} ${params.id}:`, error);
       throw error;

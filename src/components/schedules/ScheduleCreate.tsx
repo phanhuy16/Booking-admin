@@ -27,8 +27,6 @@ const validateTime = (value: any) => {
 export const ScheduleCreate: React.FC = () => {
   // Transform data trước khi submit
   const transform = (data: any) => {
-    console.log("🔍 Original data:", data);
-
     const transformed = {
       doctorId: parseInt(data.doctorId),
       date: data.date, // ISO string format: "2025-11-01"
@@ -36,8 +34,6 @@ export const ScheduleCreate: React.FC = () => {
       endTime: data.endTime, // "17:00"
       isAvailable: data.isAvailable !== undefined ? data.isAvailable : true,
     };
-
-    console.log("✅ Transformed data:", transformed);
     return transformed;
   };
 

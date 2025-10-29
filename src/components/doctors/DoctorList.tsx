@@ -12,7 +12,6 @@ import {
   Filter,
   CreateButton,
   TopToolbar,
-  NumberField,
 } from "react-admin";
 import { Avatar, Chip, Box } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
@@ -75,7 +74,15 @@ export const DoctorList: React.FC = () => (
 
       <EmailField source="email" label="Email" />
       <TextField source="phone" label="Điện thoại" />
-      <NumberField source="consultationFee" label="Phí tư vấn" />
+
+      <FunctionField
+        label="Phí tư vấn"
+        render={(record: any) =>
+          record.consultationFee
+            ? `${record.consultationFee.toLocaleString("vi-VN")} ₫`
+            : "N/A"
+        }
+      />
 
       <FunctionField
         label="Kinh nghiệm"

@@ -79,11 +79,20 @@ export const DoctorCreate: React.FC = () => {
           helperText="Để trống sẽ dùng mật khẩu mặc định: Doctor@123"
         />
 
-        <NumberInput
+        <TextInput
           source="consultationFee"
-          label="Phí tư vấn"
-          defaultValue={0}
+          label="Phí tư vấn (VNĐ)"
           validate={[required(), minValue(0), maxValue(10000000)]}
+          format={(value) =>
+            value ? parseInt(value).toLocaleString("vi-VN") : ""
+          }
+          parse={(value) => {
+            if (!value) return 0;
+            const numericValue = value.toString().replace(/\./g, "");
+            return parseInt(numericValue) || 0;
+          }}
+          helperText="Nhập số tiền, VD: 500.000"
+          fullWidth
         />
 
         <ImageInput
