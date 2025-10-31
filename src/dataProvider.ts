@@ -407,6 +407,10 @@ const dataProvider: DataProvider = {
       // Transform data based on resource
       let dataToSend = { ...params.data };
 
+      if (!dataToSend.id) {
+        dataToSend.id = params.id;
+      }
+
       // Handle specific transformations
       if (resource === 'patients' && params.data.gender) {
         // Convert string gender to enum (0, 1, 2)

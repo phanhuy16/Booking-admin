@@ -31,6 +31,12 @@ import {
 } from "./components/schedules";
 import { BookingEdit, BookingList, BookingShow } from "./components/bookings";
 import { PaymentEdit, PaymentList, PaymentShow } from "./components/payments";
+import {
+  ServiceCreate,
+  ServiceEdit,
+  ServiceList,
+  ServiceShow,
+} from "./components/services";
 
 const App: React.FC = () => (
   <Admin
@@ -97,6 +103,15 @@ const App: React.FC = () => (
       edit={PaymentEdit}
       icon={PaymentIcon}
       options={{ label: "Thanh toán" }}
+    />
+
+    <Resource
+      name="services"
+      list={ServiceList}
+      create={ServiceCreate}
+      edit={ServiceEdit}
+      show={ServiceShow}
+      options={{ label: "Dịch vụ" }}
     />
   </Admin>
 );
